@@ -1,0 +1,18 @@
+
+#set( $className = $entityName )
+#set( $package = "com.example" )
+
+import java.time.*;
+
+public record ${className}(
+    #foreach($field in $fields)
+        #if($field.type == 'DATETIME') 
+            ${field.name} LocalDateTime,
+        #elseif($field.type == 'DATE') 
+            ${field.name} LocalDate,
+        #else 
+            ${field.name} ${field.javaType},
+        #end
+    #end    
+) { }
+

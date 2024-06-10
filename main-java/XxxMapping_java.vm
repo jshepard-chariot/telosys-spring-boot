@@ -1,0 +1,29 @@
+import org.springframework.jdbc.core.RowMapper;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class EntityRowMapper implements RowMapper<Entity> {
+    @Override
+    public Entity mapRow(ResultSet rs, int rowNum) throws SQLException {
+        // Create a new entity and set its properties based on the ResultSet's values
+        Entity entity = new Entity();
+        
+        #foreach($field in $fields)
+            if (rs.getObject(${field.name}) != null) { 
+                switch(${field.type}) {
+                    case 'DATETIME': 
+                        $entity.set${fn:toCamelCase(${field.name})} ((LocalDateTime) rs.getObject(${field.name})); 
+                        break;
+                    case 'DATE': 
+                        $entity.set${fn:toCamelCase(${field.name})} ((LocalDate) rs.getObject(${field.name}));  
+                        break;
+                    default: 
+                        $entity.set${fn:toCamelCase(${field<｜begin▁of▁sentence｜>fieldName)} (rs.getObject(${field.name}));  
+                }
+            }
+        #end
+        
+        return entity;
+    }
+}
+

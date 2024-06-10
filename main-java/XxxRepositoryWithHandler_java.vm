@@ -1,0 +1,34 @@
+#set( $entityName = "Entity" )
+package com.example;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class ${entityName}RowCallbackHandler implements RowCallbackHandler {
+    private final ${entityName} entity = new ${entityName}();  // Assuming this is your Entity class
+    
+    @Override
+    public void processRow(ResultSet rs) throws SQLException {
+        #foreach($field in $fields)
+            if (rs.getObject(${field.name}) != null) {  
+                switch(${field.type})  {
+                    case 'DATETIME': 
+                        entity.set${fn:toCamelCase(${field.name})} ((LocalDateTime) rs.getObject(${field.name}));  
+                        break;
+                    case 'DATE': 
+                        entity.set${fn:toCamelCase(${field.name})} ((LocalDate) rs.getObject(${field.name}));  
+                        break;
+                    default: 
+                        entity.set${fn:toCamelCase(${field.name})} (rs.getObject(${field.name}));  
+                }
+            }
+        #end
+    }
+    
+    public ${entityName} getEntity() {
+        return this.entity;
+    }
+}
+

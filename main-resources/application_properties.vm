@@ -1,0 +1,18 @@
+# The name of the application or service
+app.name=MyApplication
+
+# The environment (dev, prod, test)
+spring.profiles.active=@profileActive@
+
+# Server settings
+server.port=8080
+
+# Database connection settings
+spring.datasource.url=jdbc:postgresql://localhost/test
+spring.datasource.username=dbuser
+spring.datasource.password=dbpass
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# Hibernate settings
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect

@@ -1,0 +1,17 @@
+#set( $entityName = "Entity" )
+#set( $className = $entityName + "RowMapper" )
+package com.example;
+
+import org.springframework.jdbc.core.RowMapper;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class ${className} implements RowMapper<${entityName}> {
+    @Override
+    public ${entityName} mapRow(ResultSet rs, int rowNum) throws SQLException {
+        ${entityName} entity = new ${entityName}();
+        // Populate the entity fields here...
+        return entity;
+    }
+}
+
