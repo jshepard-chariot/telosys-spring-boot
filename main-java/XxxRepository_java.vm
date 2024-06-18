@@ -1,0 +1,89 @@
+package ${target.javaPackageFromFolder(${SRC})};
+
+#foreach( $import in $java.imports($entity) )
+import $import;
+#end
+import ${ROOT_PKG}.type.${entity.name};
+import java.util.Optional;
+
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ${entity}Repository {
+    private static final String getSql = 
+        """
+          select *
+          from ${entity}
+#foreach( $attribute in $entity.keyAttributes )
+          #if( $foreach.index == 0 ) where #else and #end ${attribute.databaseName} = :${attribute.name}
+#end
+        """;
+    
+    private static final String insertSql = """
+        insert into ${entity} (
+            #foreach( $attribute in $entity.attributes )$attribute.databaseName #if( $foreach.hasNext ), #end#end
+
+        ) values (
+            #foreach( $attribute in $entity.attributes ):$attribute.name #if( $foreach.hasNext ), #end#end
+
+        );
+         """;
+    
+#if( $entity.nonKeyAttributesCount > 0 )    
+    private static final String updateSql = """
+        update ${entity} set
+            #foreach( $attribute in $entity.nonKeyAttributes )
+${attribute.databaseName} = :${attribute.name}#if( $foreach.hasNext ), #end
+#end
+
+        #foreach( $attribute in $entity.keyAttributes )
+#if( $foreach.index == 0 )where #else and #end ${attribute.databaseName} = :${attribute.name}
+#end
+         """;
+#end
+    
+    private final JdbcClient jdbcClient;
+
+    public ${entity}Repository(JdbcClient jdbcClient) {
+        this.jdbcClient = jdbcClient;
+    }
+
+    public Optional<${entity}> get(#foreach( $attribute in $entity.keyAttributes)#if( $foreach.index != 0 ),#end ${attribute.type} ${attribute.name} #end) {
+        return jdbcClient
+          .sql(getSql)
+#foreach( $attribute in $entity.keyAttributes )
+          .param("$attribute.name", ${attribute.name})
+#end          
+          .query(${entity}.class)
+          .optional();
+    }
+
+#if( $entity.nonKeyAttributesCount > 0 )    
+    public void update(${entity} data) {
+        var count = jdbcClient
+         .sql(updateSql)
+#foreach( $attribute in $entity.attributes  )
+         .param("${attribute.name}", data.${attribute.name}())
+#end          
+         .update();
+
+        if (count != 1) {
+            throw new RuntimeException("expected one row updated, but got " + count);
+        }
+     }
+#end          
+
+    public void insert(${entity} data) {
+        var count = jdbcClient
+         .sql(insertSql)
+#foreach( $attribute in $entity.attributes   )
+         .param("${attribute.name}", data.${attribute.name}())
+#end          
+         .update();
+
+        if (count != 1) {
+            throw new RuntimeException("expected one row inserted, but got " + count);
+        }
+    }
+}

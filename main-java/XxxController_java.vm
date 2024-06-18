@@ -1,0 +1,39 @@
+package ${target.javaPackageFromFolder(${SRC})};
+
+import ${ROOT_PKG}.type.${entity.name};
+import ${ROOT_PKG}.repository.${entity.name}Repository;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+@RestController
+public class ${entity.name}Controller {
+    private final ${entity.name}Repository $fn.uncapitalize(${entity.name})Repository;
+
+    public ${entity.name}Controller( ${entity.name}Repository $fn.uncapitalize(${entity.name})Repository) {
+        this.$fn.uncapitalize(${entity.name})Repository = $fn.uncapitalize(${entity.name})Repository;
+    }
+
+    @GetMapping("/api/v1/${entity.name}/get/#foreach( $attribute in $entity.keyAttributes ){$attribute.name}#if( $foreach.hasNext )/#end#end")
+    public ${entity.name} get(#foreach( $attribute in $entity.keyAttributes )
+@PathVariable("${attribute.name}") ${attribute.type} ${attribute.name}#if( $foreach.hasNext ), #end
+#end
+) {
+        return ${fn.uncapitalize(${entity.name})}Repository.get(#foreach( $attribute in $entity.keyAttributes )
+${attribute.name}#if( $foreach.hasNext ), #end
+#end
+).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @PostMapping("/api/v1/${entity.name}/create")
+    public void create(@RequestBody ${entity.name} data) {
+        ${fn.uncapitalize(${entity.name})}Repository.insert(data);
+    }
+
+#if( $entity.nonKeyAttributesCount > 0 )    
+    @PutMapping("/api/v1/${entity.name}/update")
+    public void update(@RequestBody ${entity.name} data) {
+        ${fn.uncapitalize(${entity.name})}Repository.update(data);
+    }
+#end
+}
