@@ -93,5 +93,5 @@ telosys#(mymodel)[telosys-spring-boot]>
 
 ### Build and Run the application
 
- * From the terminal run **mvn package** (assumens maven is installed)
+ * From the terminal run **mvn package** (assumes maven is installed)
  * Run **java -jar target/myproject-1.0.0.jar**
